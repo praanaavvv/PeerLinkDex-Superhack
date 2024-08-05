@@ -1,69 +1,178 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./Escrow.sol";  // Import your Escrow contract
+import "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./Escrow.sol";
 
-/**
- * @title P2P Orderbook
- * @author Ankush Jha
- * @notice This contract manages the P2P orderbook and matches orders based on time and size.
- */
+contract Orderbook is AutomationCompatibleInterface {
+    Escrow public escrow;
+    uint256 public orderIdCounter;
+    mapping(uint256 => Order) public orders;
+    mapping(address => uint256[]) public userOrders;
 
-contract Orderbook {
+    event OrderCreated(
+        uint256 orderId,
+        address indexed user,
+        uint256 amount,
+        uint256 price,
+        bool isBuyOrder
+    );
+    event OrderMatched(uint256 buyOrderId, uint256 sellOrderId);
+    event OrderCancelled(uint256 orderId);
+
     struct Order {
         uint256 orderId;
         address user;
         address tokenAddress;
         uint256 amount;
+        uint256 price;
         uint256 timestamp;
         bool isBuyOrder;
-        bool isMatched;
+        bool isActive;
     }
 
-    uint256 public orderCounter;
-    mapping(uint256 => Order) public orders;
-    Escrow public escrow;
-
-    event OrderPlaced(uint256 orderId, address indexed user, address tokenAddress, uint256 amount, bool isBuyOrder);
-    event OrderWithdrawn(uint256 orderId, address indexed user);
-    event OrderMatched(uint256 buyOrderId, uint256 sellOrderId);
-
-    constructor(address _escrowAddress) {
-        escrow = Escrow(_escrowAddress);
+    constructor(address escrowAddress) {
+        escrow = Escrow(escrowAddress);
     }
 
-    function placeOrder(address tokenAddress, uint256 amount, bool isBuyOrder) public {
-        orderCounter++;
-        orders[orderCounter] = Order(orderCounter, msg.sender, tokenAddress, amount, block.timestamp, isBuyOrder, false);
-        emit OrderPlaced(orderCounter, msg.sender, tokenAddress, amount, isBuyOrder);
-    }
-
-    function withdrawOrder(uint256 orderId) public {
-        require(orders[orderId].user == msg.sender, "Only the order creator can withdraw the order");
-        require(!orders[orderId].isMatched, "Cannot withdraw a matched order");
-
-        delete orders[orderId];
-        emit OrderWithdrawn(orderId, msg.sender);
-    }
-
-    function matchOrders(uint256 buyOrderId, uint256 sellOrderId) public {
-        require(orders[buyOrderId].isBuyOrder, "First order must be a buy order");
-        require(!orders[sellOrderId].isBuyOrder, "Second order must be a sell order");
-        require(!orders[buyOrderId].isMatched && !orders[sellOrderId].isMatched, "Orders must not be matched already");
-        require(orders[buyOrderId].amount == orders[sellOrderId].amount, "Order sizes must match");
-
-        // Move orders to escrow contract
-        escrow.createEscrowArrangement(
-            orders[buyOrderId].user,
-            orders[sellOrderId].user,
-            orders[buyOrderId].tokenAddress,
-            orders[buyOrderId].amount,
-            block.timestamp + 30 minutes
+    function createOrder(
+        address tokenAddress,
+        uint256 amount,
+        uint256 price,
+        bool isBuyOrder
+    ) public {
+        orderIdCounter += 1;
+        Order memory newOrder = Order(
+            orderIdCounter,
+            msg.sender,
+            tokenAddress,
+            amount,
+            price,
+            block.timestamp,
+            isBuyOrder,
+            true
         );
+        orders[orderIdCounter] = newOrder;
+        userOrders[msg.sender].push(orderIdCounter);
 
-        orders[buyOrderId].isMatched = true;
-        orders[sellOrderId].isMatched = true;
+        // Lock funds in escrow
+        if (isBuyOrder) {
+            // Buyer locks payment tokens
+            require(
+                IERC20(tokenAddress).transferFrom(
+                    msg.sender,
+                    address(escrow),
+                    amount * price
+                ),
+                "Payment transfer failed"
+            );
+        } else {
+            // Seller locks tokens to sell
+            require(
+                IERC20(tokenAddress).transferFrom(
+                    msg.sender,
+                    address(escrow),
+                    amount
+                ),
+                "Token transfer failed"
+            );
+        }
 
-        emit OrderMatched(buyOrderId, sellOrderId);
+        emit OrderCreated(
+            orderIdCounter,
+            msg.sender,
+            amount,
+            price,
+            isBuyOrder
+        );
+    }
+
+    function matchOrders() internal {
+        for (uint256 i = 1; i <= orderIdCounter; i++) {
+            for (uint256 j = i + 1; j <= orderIdCounter; j++) {
+                Order storage buyOrder = orders[i];
+                Order storage sellOrder = orders[j];
+                if (
+                    buyOrder.isActive &&
+                    sellOrder.isActive &&
+                    buyOrder.isBuyOrder &&
+                    !sellOrder.isBuyOrder &&
+                    buyOrder.price >= sellOrder.price &&
+                    buyOrder.amount == sellOrder.amount &&
+                    buyOrder.timestamp <= sellOrder.timestamp
+                ) {
+                    // Match found, execute trade
+                    executeTrade(buyOrder, sellOrder);
+                    break;
+                }
+            }
+        }
+    }
+
+    function executeTrade(
+        Order storage buyOrder,
+        Order storage sellOrder
+    ) internal {
+        // Transfer tokens
+        escrow.completeEscrowArrangement(buyOrder.orderId);
+        escrow.completeEscrowArrangement(sellOrder.orderId);
+
+        buyOrder.isActive = false;
+        sellOrder.isActive = false;
+
+        emit OrderMatched(buyOrder.orderId, sellOrder.orderId);
+    }
+
+    function cancelOrder(uint256 orderId) public {
+        Order storage order = orders[orderId];
+        require(order.user == msg.sender, "Not authorized");
+        require(order.isActive, "Order is not active");
+
+        order.isActive = false;
+
+        // Refund locked funds
+        if (order.isBuyOrder) {
+            escrow.cancelEscrowArrangement(orderId);
+        } else {
+            escrow.cancelEscrowArrangement(orderId);
+        }
+
+        emit OrderCancelled(orderId);
+    }
+
+    function getUserOrders(
+        address user
+    ) public view returns (uint256[] memory) {
+        return userOrders[user];
+    }
+
+    // Chainlink Keeper-compatible methods
+    function checkUpkeep(
+        bytes calldata
+    ) external view override returns (bool upkeepNeeded, bytes memory) {
+        upkeepNeeded = false;
+        for (uint256 i = 1; i <= orderIdCounter; i++) {
+            for (uint256 j = i + 1; j <= orderIdCounter; j++) {
+                Order storage buyOrder = orders[i];
+                Order storage sellOrder = orders[j];
+                if (
+                    buyOrder.isActive &&
+                    sellOrder.isActive &&
+                    buyOrder.isBuyOrder &&
+                    !sellOrder.isBuyOrder &&
+                    buyOrder.price >= sellOrder.price &&
+                    buyOrder.amount == sellOrder.amount &&
+                    buyOrder.timestamp <= sellOrder.timestamp
+                ) {
+                    upkeepNeeded = true;
+                    return (upkeepNeeded, "");
+                }
+            }
+        }
+    }
+
+    function performUpkeep(bytes calldata) external override {
+        matchOrders();
     }
 }
