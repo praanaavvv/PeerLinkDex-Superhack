@@ -10,11 +10,6 @@ import "./utils/EventEmitter.sol";
  */
 
 contract Escrow is EventEmitter {
-    enum EscrowType {
-        BasicEscrowRequeset,
-        OrderBookEscrowRequest
-    }
-
     enum EscrowState {
         Initiated,
         Active,
@@ -33,7 +28,6 @@ contract Escrow is EventEmitter {
         uint256 startingTimestamp;
         uint256 duration;
         EscrowState state;
-        EscrowType escrowRequestType;
     }
 
     // Public Variables
@@ -57,8 +51,7 @@ contract Escrow is EventEmitter {
         address tokenOutAddress,
         uint256 amountIn,
         uint256 amountOut,
-        uint256 duration,
-        EscrowType escrowRequestType
+        uint256 duration
     ) public payable {
         EscrowDetails memory escrowDetails = EscrowDetails(
             escrowId,
@@ -70,19 +63,24 @@ contract Escrow is EventEmitter {
             amountOut,
             block.timestamp,
             duration,
-            EscrowState.Initiated,
-            escrowRequestType
+            EscrowState.Initiated
         );
 
-        IERC20 token = IERC20(escrowDetails.tokenInAddress);
+        IERC20 tokenIn = IERC20(escrowDetails.tokenInAddress);
+
+        // require(
+        //     token.approve(address(this), escrowDetails.amountIn),
+        //     "Allowance Failed"
+        // );
 
         require(
-            token.approve(address(this), escrowDetails.amountIn),
-            "Allowance Failed"
+            tokenIn.allowance(msg.sender, address(this)) >=
+                escrowDetails.amountIn,
+            "Insufficient Allowance"
         );
 
         require(
-            token.transferFrom(
+            tokenIn.transferFrom(
                 msg.sender,
                 address(this),
                 escrowDetails.amountIn
@@ -98,6 +96,11 @@ contract Escrow is EventEmitter {
 
         escrowId += 1;
     }
+
+    /**
+     * @dev This cancels any escrow arrangement and returns the funds to the users
+     * @param _escrowId Escrow ID is the unique id of an escrow arrangement from which we can fetch details about an escrow
+     */
 
     function cancelEscrowArrangement(uint256 _escrowId) public payable {
         EscrowDetails storage escrowDetails = escrowInfo[_escrowId];
@@ -126,6 +129,10 @@ contract Escrow is EventEmitter {
         emitEscrowEvent(_escrowId, escrowDetails);
     }
 
+    /**
+     * @dev Completes the escrow by exchanging the tokens between two parties
+     * @param _escrowId Takes in escrow ID as an input
+     */
     function completeEscrowArrangement(uint256 _escrowId) public payable {
         EscrowDetails memory escrowDetails = escrowInfo[_escrowId];
 
@@ -142,9 +149,15 @@ contract Escrow is EventEmitter {
 
         IERC20 tokenOut = IERC20(escrowDetails.tokenOutAddress);
 
+        // require(
+        //     tokenOut.approve(address(this), escrowDetails.amountOut),
+        //     "Allowance Failed"
+        // );
+
         require(
-            tokenOut.approve(address(this), escrowDetails.amountOut),
-            "Allowance Failed"
+            tokenOut.allowance(msg.sender, address(this)) >=
+                escrowDetails.amountOut,
+            "Insufficient Allowance"
         );
 
         require(
@@ -174,5 +187,16 @@ contract Escrow is EventEmitter {
         escrowInfo[_escrowId] = escrowDetails;
 
         emitEscrowEvent(_escrowId, escrowDetails);
+    }
+
+    // View functions
+    function getEscrowId() public view returns (uint256) {
+        return escrowId;
+    }
+
+    function getEscrowInfo(
+        uint256 _escrowId
+    ) public view returns (EscrowDetails memory) {
+        return escrowInfo[_escrowId];
     }
 }
