@@ -1,0 +1,85 @@
+body {
+  overflow-x: hidden;
+  margin: 0; /* Ensure there's no margin affecting layout */
+}
+
+.navbarContainer {
+  width: 100%;
+  background-color: #1e1e1e;
+  padding: 10px 20px;
+  margin-bottom: 0; /* Ensure there's no margin below the navbar */
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.menuToggle {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+}
+
+.menuItems {
+  display: flex;
+  align-items: center;
+}
+
+.menuItems p {
+  margin: 0 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.menuItems p.active {
+  font-weight: bold;
+  border-bottom: 2px solid white;
+}
+
+.connectWallet {
+  margin-left: auto;
+  margin-right: 2.5%;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .menuToggle {
+    display: block;
+  }
+
+  .menuItems {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    z-index: 1000;
+  }
+
+  .menuItems.open {
+    display: flex;
+  }
+
+  .menuItems p {
+    margin: 10px 0;
+  }
+}
+
+.content {
+  color: white;
+}
