@@ -62,6 +62,8 @@ contract EscrowTest is Test {
         );
         vm.stopPrank();
 
+        assertEq(escrow.getEscrowId(), 1);
+
         vm.startPrank(alice); // msg.sender for the next call is alice
         tokenOut.approve(address(escrow), 100 ether);
         escrow.completeEscrowArrangement(0);
@@ -76,10 +78,44 @@ contract EscrowTest is Test {
     }
 
     function testCancelEscrow() public {
-        vm.skip(true);
+        // Initiate the escrow arrangement
+        vm.startPrank(bob); // msg.sender for the next call is bob
+        tokenIn.approve(address(escrow), 10 ether);
+        escrow.createEscrowArrangement(
+            alice,
+            address(tokenIn),
+            address(tokenOut),
+            10 ether,
+            100 ether,
+            30 minutes
+        );
+
+        escrow.cancelEscrowArrangement(0);
+        assertEq(tokenIn.balanceOf(bob), 1000 ether);
+        vm.stopPrank();        
     }
 
     function testCompleteEscrow() public {
-        vm.skip(true);
+        // Initiate the escrow arrangement
+        vm.startPrank(bob); // msg.sender for the next calls is bob
+        tokenIn.approve(address(escrow), 10 ether);
+        escrow.createEscrowArrangement(
+            alice,
+            address(tokenIn),
+            address(tokenOut),
+            10 ether,
+            100 ether,
+            30 minutes
+        );
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        tokenOut.approve(address(escrow), 100 ether);
+        escrow.completeEscrowArrangement(0);
+
+        vm.stopPrank();
+
+        assertEq(tokenIn.balanceOf(alice), 10 ether);
+        assertEq(tokenOut.balanceOf(bob), 100 ether);
     }
 }
