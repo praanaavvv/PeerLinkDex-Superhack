@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import "../styles/Navbar.css";
 import Home from "./Home";
+import Trade from "./Trade";
+import Stats from "./Stats";
 
 const Navbar: React.FC = () => {
   const [activeComponent, setActiveComponent] = useState("home");
@@ -56,8 +58,16 @@ const Navbar: React.FC = () => {
             <Home />
           </div>
         )}
-        {activeComponent === "trade" && <div>Your Trade Component</div>}
-        {activeComponent === "stats" && <div>Your Stats Component</div>}
+        {activeComponent === "trade" && (
+          <div>
+            <Trade />
+          </div>
+        )}
+        {activeComponent === "stats" && (
+          <div>
+            <Stats />
+          </div>
+        )}
       </div>
     </div>
   );
