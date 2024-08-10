@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 import "../styles/Navbar.css";
 import Home from "./Home";
 import Trade from "./Trade";
