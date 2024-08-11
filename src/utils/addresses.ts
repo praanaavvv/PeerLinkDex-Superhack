@@ -1,5 +1,5 @@
 const addresses: { [key: string]: string } = {
-  escrow: "0xBC887B2137018A63fAbce5b3892Fe688062e8222",
+  escrow: "0x06BEeD7f4c292661Ae6c464D1581f7f2F3ecDAe1",
 };
 
 export default addresses;

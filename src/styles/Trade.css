@@ -1,114 +1,207 @@
 /* Trade.css */
 
 .trade-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    margin-top:3% ;
-    background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
-    color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px); /* Adding blur effect for a glassy look */
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 3%;
+  background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+  color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
 }
 
 h2 {
-    text-align: center;
-    color: #4caf50;
-    font-family: 'Roboto', sans-serif;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Adding text shadow */
+  text-align: center;
+  color: #4caf50;
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 p {
-    text-align: center;
-    font-size: 1.2rem;
-    font-family: 'Roboto', sans-serif;
+  text-align: center;
+  font-size: 1.2rem;
+  font-family: "Roboto", sans-serif;
 }
 
 .form-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: #2b2b2b;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #444;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, box-shadow 0.3s ease; /* Adding transition effects */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .form-group:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 h3 {
-    margin-bottom: 10px;
-    color: #4caf50;
-    font-family: 'Roboto', sans-serif;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Adding text shadow */
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-family: "Roboto", sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 input {
-    padding: 10px;
-    border: 1px solid #555;
-    border-radius: 5px;
-    background: #333;
-    color: #fff;
-    font-family: 'Roboto', sans-serif;
-    outline: none;
-    transition: border-color 0.3s ease; /* Adding transition for border color */
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background: #333;
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
 input:focus {
-    border-color: #4caf50; /* Change border color on focus */
+  border-color: #ffffff;
 }
 
 input::placeholder {
-    color: #888;
+  color: #888;
 }
 
 .btn {
-    padding: 10px;
-    background: linear-gradient(45deg, #4caf50, #81c784);
-    border: none;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    font-family: 'Roboto', sans-serif;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adding box-shadow */
+  padding: 10px;
+  background-color: #5a9bd4;
+  /* background: linear-gradient(45deg, #4caf50, #81c784); */
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  font-family: "Roboto", sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn:hover {
-    background: linear-gradient(45deg, #45a049, #66bb6a);
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
+  background-color: #5a9bd4;
+  /* background: linear-gradient(45deg, #45a049, #66bb6a); */
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .btn:active {
-    background: linear-gradient(45deg, #388e3c, #4caf50);
-    transform: scale(0.95);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow on active state */
+  background-color: #5a9bd4;
+  /* background: linear-gradient(45deg, #388e3c, #4caf50); */
+  transform: scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.alert,
+.success {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  transform: none;
+  background-color: #ff4c4c;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-family: "Roboto", sans-serif;
+  text-align: center;
+  display: flex; /* Use flexbox to align icon and text */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Add space between icon and text */
+  animation: fadeOut 5s ease forwards, vibrate 0.5s ease forwards;
+}
+
+.success {
+  background-color: #4caf50; /* Green background for success */
+}
+
+.alert i,
+.success i {
+  font-size: 20px; /* Adjust icon size as needed */
+}
+
+@keyframes vibrate {
+  0% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-4px);
+  }
+  20% {
+    transform: translateX(4px);
+  }
+  30% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  50% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  70% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+  90% {
+    transform: translateX(-4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%);
+  }
 }
 
 @media (min-width: 768px) {
-    .form-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
+  .form-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
 
-    .form-group {
-        flex: 1;
-        min-width: 250px;
-    }
+  .form-group {
+    flex: 1;
+    min-width: 250px;
+  }
 }
